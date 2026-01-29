@@ -2,7 +2,16 @@
 
 > 一个基于 Flask 的宿舍管理系统，围绕“学生选宿、管理员管理、智能匹配与考勤”完整闭环设计，适合作为毕业设计或实际部署使用。
 
+> 仓库地址：`https://github.com/13fty/The-simple-flask`
 
+[![GitHub stars](https://img.shields.io/github/stars/13fty/The-simple-flask?style=social)](https://github.com/13fty/The-simple-flask)
+[![GitHub forks](https://img.shields.io/github/forks/13fty/The-simple-flask?style=social)](https://github.com/13fty/The-simple-flask)
+[![GitHub issues](https://img.shields.io/github/issues/13fty/The-simple-flask)](https://github.com/13fty/The-simple-flask/issues)
+[![GitHub license](https://img.shields.io/github/license/13fty/The-simple-flask)](./LICENSE)
+
+**Star 数随时间变化图（Star History）**：
+
+[![Star History Chart](https://starchart.cc/13fty/The-simple-flask.svg)](https://starchart.cc/13fty/The-simple-flask)
 
 ---
 
@@ -298,5 +307,4 @@ pytest
 ## 开源许可证
 
 本项目基于 **MIT License** 开源，详情见 `LICENSE` 文件。
-
 
