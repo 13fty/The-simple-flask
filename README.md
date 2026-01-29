@@ -2,7 +2,6 @@
 
 > 一个基于 Flask 的现代化宿舍管理系统，围绕“学生选宿、管理员管理、智能匹配与考勤”完整闭环设计，适合作为毕业设计或实际部署使用。
 
-> ⚠️ 下方徽章中的 `your-username/your-repo` 请替换为你在 GitHub 上真实的仓库路径。
 
 [![GitHub stars](https://img.shields.io/github/stars/your-username/your-repo?style=social)](https://github.com/your-username/your-repo)
 [![GitHub forks](https://img.shields.io/github/forks/your-username/your-repo?style=social)](https://github.com/your-username/your-repo)
