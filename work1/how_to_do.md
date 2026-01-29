@@ -1,2 +1,2 @@
-cd /Users/MyCode/My_bysj
+Use cd for file paths
 python3 start.py
