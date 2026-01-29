@@ -1,6 +1,6 @@
 # 宿舍管理系统 Dorm Management System
 
-> 一个基于 Flask 的现代化宿舍管理系统，围绕“学生选宿、管理员管理、智能匹配与考勤”完整闭环设计，适合作为毕业设计或实际部署使用。
+> 一个基于 Flask 的宿舍管理系统，围绕“学生选宿、管理员管理、智能匹配与考勤”完整闭环设计，适合作为毕业设计或实际部署使用。
 
 
 [![GitHub stars](https://img.shields.io/github/stars/13fty/The-simple-flask?style=social)](https://github.com/13fty/The-simple-flask)
