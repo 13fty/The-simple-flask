@@ -3,10 +3,10 @@
 > 一个基于 Flask 的现代化宿舍管理系统，围绕“学生选宿、管理员管理、智能匹配与考勤”完整闭环设计，适合作为毕业设计或实际部署使用。
 
 
-[![GitHub stars](https://img.shields.io/github/stars/your-username/your-repo?style=social)](https://github.com/your-username/your-repo)
-[![GitHub forks](https://img.shields.io/github/forks/your-username/your-repo?style=social)](https://github.com/your-username/your-repo)
-[![GitHub issues](https://img.shields.io/github/issues/your-username/your-repo)](https://github.com/your-username/your-repo/issues)
-[![GitHub license](https://img.shields.io/github/license/your-username/your-repo)](./LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/13fty/The-simple-flask?style=social)](https://github.com/13fty/The-simple-flask)
+[![GitHub forks](https://img.shields.io/github/forks/13fty/The-simple-flask?style=social)](https://github.com/13fty/The-simple-flask)
+[![GitHub issues](https://img.shields.io/github/issues/13fty/The-simple-flask)](https://github.com/13fty/The-simple-flask/issues)
+[![GitHub license](https://img.shields.io/github/license/13fty/The-simple-flask)](./LICENSE)
 
 
 ---
