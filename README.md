@@ -9,12 +9,6 @@
 [![GitHub issues](https://img.shields.io/github/issues/13fty/The-simple-flask)](https://github.com/13fty/The-simple-flask/issues)
 [![GitHub license](https://img.shields.io/github/license/13fty/The-simple-flask)](./LICENSE)
 
-**Star 数随时间变化图（Star History）**：
-
-[![Star History Chart](https://starchart.cc/13fty/The-simple-flask.svg)](https://starchart.cc/13fty/The-simple-flask)
-
----
-
 ## 项目简介
 
 本项目实现了一个覆盖**学生端、管理员端与系统管理端**的宿舍管理平台，核心目标是：
@@ -307,4 +301,10 @@ pytest
 ## 开源许可证
 
 本项目基于 **MIT License** 开源，详情见 `LICENSE` 文件。
+
+---
+
+## Star History / Star 变化图
+
+[![Star History Chart](https://starchart.cc/13fty/The-simple-flask.svg)](https://starchart.cc/13fty/The-simple-flask)
 
