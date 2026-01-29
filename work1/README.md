@@ -5,7 +5,7 @@
 ## 项目结构
 
 ```
-My_bysj/
+work1/
 ├── start.py                # 主应用入口文件
 ├── init_db.py             # 数据库初始化脚本
 ├── requirements.txt        # 依赖包
