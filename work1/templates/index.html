@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- 欢迎横幅 -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white rounded-3 p-5 text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="bi bi-house-door-fill me-3"></i>欢迎来到宿舍管理系统
+                </h1>
+                <p class="lead mb-4">便捷的宿舍申请与管理平台，让您的校园生活更美好</p>
+                {% if current_batch %}
+                <div class="alert alert-info d-inline-block">
+                    <i class="bi bi-clock me-2"></i>
+                    当前选宿批次：{{ current_batch.name }} 
+                    ({{ current_batch.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ current_batch.end_time.strftime('%Y-%m-%d %H:%M') }})
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能导航 -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">系统功能</h2>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-search text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">浏览宿舍</h5>
+                    <p class="card-text">查看所有可用宿舍，支持多条件筛选</p>
+                    <a href="{{ url_for('browse_dorms') }}" class="btn btn-primary">立即浏览</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people text-success" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">室友匹配</h5>
+                    <p class="card-text">智能匹配志同道合的室友</p>
+                    <a href="{{ url_for('roommate_match') }}" class="btn btn-success">开始匹配</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-person-plus text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">用户注册</h5>
+                    <p class="card-text">注册账号，开始您的宿舍申请之旅</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-info">立即注册</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-box-arrow-in-right text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">用户登录</h5>
+                    <p class="card-text">登录系统，管理您的宿舍申请</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-warning">立即登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最新公告 -->
+    {% if announcements %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-bell me-2"></i>最新公告
+            </h2>
+            <div class="row">
+                {% for announcement in announcements %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{ announcement.title }}</h6>
+                            <small class="text-muted">{{ announcement.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ announcement.content[:100] }}{% if announcement.content|length > 100 %}...{% endif %}</p>
+                            {% if announcement.category %}
+                            <span class="badge bg-secondary">{{ announcement.category }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 系统统计 -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-graph-up me-2"></i>系统概览
+            </h2>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+                    <h4 class="mt-2">学生总数</h4>
+                    <p class="text-muted">注册学生数量</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
+                    <h4 class="mt-2">宿舍楼栋</h4>
+                    <p class="text-muted">可用楼栋数量</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-house text-info" style="font-size: 2rem;"></i>
+                    <h4 class="mt-2">宿舍房间</h4>
+                    <p class="text-muted">可用房间数量</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-clipboard-check text-warning" style="font-size: 2rem;"></i>
+                    <h4 class="mt-2">待处理申请</h4>
+                    <p class="text-muted">需要审核的申请</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

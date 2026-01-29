@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus me-2"></i>用户注册
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST">
+                        <div class="row">
+                            <!-- 基本信息 -->
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="bi bi-person me-1"></i>用户名 *
+                                </label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock me-1"></i>密码 *
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="bi bi-person-badge me-1"></i>姓名 *
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="student_id" class="form-label">
+                                    <i class="bi bi-card-text me-1"></i>学号 *
+                                </label>
+                                <input type="text" class="form-control" id="student_id" name="student_id" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_card" class="form-label">
+                                    <i class="bi bi-credit-card me-1"></i>身份证号 *
+                                </label>
+                                <input type="text" class="form-control" id="id_card" name="id_card" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">
+                                    <i class="bi bi-gender-ambiguous me-1"></i>性别 *
+                                </label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">请选择性别</option>
+                                    <option value="男">男</option>
+                                    <option value="女">女</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="major_id" class="form-label">
+                                    <i class="bi bi-book me-1"></i>专业 *
+                                </label>
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="major_search" placeholder="搜索专业名称..." 
+                                           onkeyup="filterMajors()" autocomplete="off">
+                                    <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                                        <i class="bi bi-search text-muted"></i>
+                                    </div>
+                                </div>
+                                <select class="form-select mt-2" id="major_id" name="major_id" required size="8" style="display: none;">
+                                    <option value="">请选择专业</option>
+                                    {% set current_department = "" %}
+                                    {% for major in majors %}
+                                        {% if major.department != current_department %}
+                                            {% if current_department != "" %}
+                                                </optgroup>
+                                            {% endif %}
+                                            <optgroup label="{{ major.department }}">
+                                            {% set current_department = major.department %}
+                                        {% endif %}
+                                        <option value="{{ major.id }}" data-department="{{ major.department }}">{{ major.name }}</option>
+                                    {% endfor %}
+                                    {% if current_department != "" %}
+                                        </optgroup>
+                                    {% endif %}
+                                </select>
+                                <div class="form-text">输入专业名称进行搜索，或直接在下拉列表中选择</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">
+                                    <i class="bi bi-telephone me-1"></i>手机号
+                                </label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="bi bi-envelope me-1"></i>邮箱
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                        </div>
+                        
+                        <!-- 生活习惯选择 -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-person-heart me-2"></i>生活习惯
+                            </h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="sleep_time" class="form-label">
+                                <i class="bi bi-moon me-1"></i>作息时间
+                            </label>
+                            <select class="form-select" id="sleep_time" name="sleep_time">
+                                <option value="">请选择作息时间</option>
+                                <option value="早睡">早睡早起</option>
+                                <option value="晚睡">晚睡晚起</option>
+                                <option value="22:00">22:00前睡觉</option>
+                                <option value="23:00">23:00前睡觉</option>
+                                <option value="24:00">24:00前睡觉</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="wake_time" class="form-label">
+                                <i class="bi bi-sun me-1"></i>起床时间
+                            </label>
+                            <select class="form-select" id="wake_time" name="wake_time">
+                                <option value="">请选择起床时间</option>
+                                <option value="06:00">6:00前起床</option>
+                                <option value="07:00">7:00前起床</option>
+                                <option value="08:00">8:00前起床</option>
+                                <option value="09:00">9:00前起床</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="hobbies" class="form-label">
+                                <i class="bi bi-heart me-1"></i>兴趣爱好
+                            </label>
+                            <textarea class="form-control" id="hobbies" name="hobbies" rows="3" 
+                                      placeholder="请描述您的兴趣爱好，如：编程、阅读、运动、音乐等"></textarea>
+                            <div class="form-text">填写兴趣爱好有助于系统为您匹配志同道合的室友</div>
+                        </div>
+                        
+                        <!-- 宿舍偏好 -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-house me-2"></i>宿舍偏好
+                            </h6>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="preferred_capacity" class="form-label">
+                                <i class="bi bi-people me-1"></i>偏好宿舍人数 *
+                            </label>
+                            <select class="form-select" id="preferred_capacity" name="preferred_capacity" required>
+                                <option value="">请选择偏好宿舍人数</option>
+                                <option value="4">4人间（推荐）</option>
+                                <option value="6">6人间</option>
+                            </select>
+                            <div class="form-text">
+                                系统将优先分配您选择的宿舍人数，如果该人数宿舍已满，将自动分配4人间或6人间
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-person-plus me-2"></i>注册账号
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-0">已有账号？</p>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>立即登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 专业搜索功能
+function filterMajors() {
+    const searchInput = document.getElementById('major_search');
+    const selectElement = document.getElementById('major_id');
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    // 显示下拉列表
+    selectElement.style.display = 'block';
+    
+    // 遍历所有选项
+    for (let i = 0; i < selectElement.options.length; i++) {
+        const option = selectElement.options[i];
+        const optionText = option.text.toLowerCase();
+        
+        // 如果是optgroup标签，跳过
+        if (option.tagName === 'OPTGROUP') {
+            continue;
+        }
+        
+        // 如果选项文本包含搜索词，显示该选项
+        if (optionText.includes(searchTerm) || searchTerm === '') {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    }
+    
+    // 如果没有搜索词，隐藏下拉列表
+    if (searchTerm === '') {
+        selectElement.style.display = 'none';
+    }
+}
+
+// 选择专业后更新搜索框
+document.getElementById('major_id').addEventListener('change', function() {
+    const searchInput = document.getElementById('major_search');
+    const selectedOption = this.options[this.selectedIndex];
+    
+    if (selectedOption.value !== '') {
+        searchInput.value = selectedOption.text;
+        this.style.display = 'none';
+    }
+});
+
+// 点击搜索框时显示下拉列表
+document.getElementById('major_search').addEventListener('focus', function() {
+    document.getElementById('major_id').style.display = 'block';
+});
+
+// 点击其他地方时隐藏下拉列表
+document.addEventListener('click', function(e) {
+    const searchInput = document.getElementById('major_search');
+    const selectElement = document.getElementById('major_id');
+    
+    if (!searchInput.contains(e.target) && !selectElement.contains(e.target)) {
+        selectElement.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

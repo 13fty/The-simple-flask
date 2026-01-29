@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 欢迎信息 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white rounded-3 p-4">
+                <h2 class="mb-2">
+                    <i class="bi bi-person-circle me-2"></i>欢迎，{{ student.name }}！
+                </h2>
+                <p class="mb-0">学号：{{ student.student_id }} | 专业：{{ student.major.name if student.major else '未设置' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 当前住宿信息 -->
+    {% if dorm_info %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-house-check me-2"></i>当前住宿信息
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>楼栋：</strong>{{ dorm_info.building }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>房间：</strong>{{ dorm_info.room }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>床位：</strong>{{ dorm_info.bed }}号床
+                        </div>
+                        <div class="col-md-3">
+                            <strong>室友数量：</strong>{{ dorm_info.roommates|length }}人
+                        </div>
+                    </div>
+                    {% if dorm_info.roommates %}
+                    <hr>
+                    <h6>室友信息：</h6>
+                    <div class="row">
+                        {% for roommate in dorm_info.roommates %}
+                        <div class="col-md-3 mb-2">
+                            <div class="card">
+                                <div class="card-body p-2">
+                                    <small class="text-muted">{{ roommate.name }}</small><br>
+                                    <small>{{ roommate.student_id }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-house-x text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">您还没有分配宿舍</h5>
+                    <p class="text-muted">系统将根据您的偏好自动分配宿舍，请耐心等待</p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        宿舍分配基于您的性别、专业、生活习惯等因素进行智能匹配
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 选宿批次信息 -->
+    {% if available_batch %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6 class="alert-heading">
+                    <i class="bi bi-clock me-2"></i>当前选宿批次
+                </h6>
+                <p class="mb-1"><strong>批次名称：</strong>{{ available_batch.name }}</p>
+                <p class="mb-1"><strong>选宿时间：</strong>{{ available_batch.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ available_batch.end_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% if available_batch.description %}
+                <p class="mb-0"><strong>说明：</strong>{{ available_batch.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 快速操作 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-lightning me-2"></i>快速操作
+            </h5>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-arrow-repeat text-primary" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">换宿申请</h6>
+                    <a href="{{ url_for('change_dorm') }}" class="btn btn-outline-primary btn-sm">申请换宿</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people text-success" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">室友匹配</h6>
+                    <a href="{{ url_for('roommate_match') }}" class="btn btn-outline-success btn-sm">开始匹配</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people-fill text-info" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">团队管理</h6>
+                    {% if not student.team_id %}
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_team') }}" class="btn btn-outline-info btn-sm">创建团队</a>
+                        <a href="{{ url_for('join_team_page') }}" class="btn btn-outline-success btn-sm">加入团队</a>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('team_detail', team_id=student.team_id) }}" class="btn btn-outline-info btn-sm">查看团队</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-person-gear text-warning" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">个人信息</h6>
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-warning btn-sm">编辑信息</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 更多功能 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-grid me-2"></i>更多功能
+            </h5>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-chat-dots text-primary" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">消息中心</h6>
+                    <a href="{{ url_for('messages') }}" class="btn btn-outline-primary btn-sm">查看消息</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-star text-warning" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">宿舍评价</h6>
+                    <a href="{{ url_for('my_reviews') }}" class="btn btn-outline-warning btn-sm">我的评价</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-bell text-info" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">通知公告</h6>
+                    <a href="#" class="btn btn-outline-info btn-sm">查看公告</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-question-circle text-secondary" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">帮助中心</h6>
+                    <a href="#" class="btn btn-outline-secondary btn-sm">获取帮助</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 打卡日程表 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar-check me-2"></i>打卡日程表（最近30天）
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <span class="badge bg-success me-2">●</span>已打卡
+                            <span class="badge bg-danger ms-3 me-2">●</span>未打卡
+                        </small>
+                    </div>
+                    <div class="attendance-calendar" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+                        {% for record in attendance_calendar %}
+                        <div class="text-center p-2 rounded" 
+                             style="background-color: {% if record.status == 'checked_in' %}#28a745{% else %}#dc3545{% endif %}; 
+                                    color: white; 
+                                    font-size: 0.85rem;
+                                    min-height: 40px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;">
+                            <div>
+                                <div style="font-weight: bold;">{{ record.date.day }}</div>
+                                <div style="font-size: 0.7rem;">{{ record.date.strftime('%m/%d') }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            今日状态：
+                            {% if attendance_calendar and attendance_calendar[-1].status == 'checked_in' %}
+                            <span class="badge bg-success">已打卡</span>
+                            {% else %}
+                            <span class="badge bg-danger">未打卡</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 申请记录 -->
+    {% if applications %}
+    <div class="row">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-clipboard-data me-2"></i>申请记录
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>申请时间</th>
+                            <th>申请类型</th>
+                            <th>目标宿舍</th>
+                            <th>状态</th>
+                            <th>处理时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>{{ app.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if app.application_type == 'new' %}
+                                <span class="badge bg-primary">新申请</span>
+                                {% elif app.application_type == 'change' %}
+                                <span class="badge bg-warning">换宿</span>
+                                {% elif app.application_type == 'cancel' %}
+                                <span class="badge bg-danger">退宿</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.bed %}
+                                {{ app.bed.dorm.building.name }} {{ app.bed.dorm.room_number }} {{ app.bed.bed_number }}号床
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.status == 'pending' %}
+                                <span class="badge bg-warning">待审核</span>
+                                {% elif app.status == 'approved' %}
+                                <span class="badge bg-success">已批准</span>
+                                {% elif app.status == 'rejected' %}
+                                <span class="badge bg-danger">已拒绝</span>
+                                {% elif app.status == 'cancelled' %}
+                                <span class="badge bg-secondary">已取消</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.processed_at %}
+                                {{ app.processed_at.strftime('%Y-%m-%d %H:%M') }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

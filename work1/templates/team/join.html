@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-people-plus me-2"></i>加入团队
+                </h2>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加入表单 -->
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-key me-2"></i>输入邀请码
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="invite_code" class="form-label">邀请码 *</label>
+                            <input type="text" class="form-control text-center" id="invite_code" name="invite_code" 
+                                   placeholder="请输入8位邀请码" maxlength="8" required>
+                            <div class="form-text">请输入团队队长提供的邀请码</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>加入团队
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用说明 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>使用说明
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 50px; height: 50px;">
+                                    <span class="fw-bold">1</span>
+                                </div>
+                                <h6>获取邀请码</h6>
+                                <p class="small text-muted">从团队队长处获取8位邀请码</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 50px; height: 50px;">
+                                    <span class="fw-bold">2</span>
+                                </div>
+                                <h6>输入邀请码</h6>
+                                <p class="small text-muted">在上方输入框中输入邀请码</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 50px; height: 50px;">
+                                    <span class="fw-bold">3</span>
+                                </div>
+                                <h6>加入成功</h6>
+                                <p class="small text-muted">成功加入团队，开始组团选宿</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 注意事项 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h6 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle me-2"></i>注意事项
+                </h6>
+                <ul class="mb-0">
+                    <li>每个学生只能加入一个团队</li>
+                    <li>邀请码由团队队长提供，请确保邀请码正确</li>
+                    <li>加入团队后，您将与团队成员一起选择宿舍</li>
+                    <li>如需退出团队，请联系团队队长</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 自动转换为大写
+document.getElementById('invite_code').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+
+// 限制输入长度
+document.getElementById('invite_code').addEventListener('input', function(e) {
+    if (e.target.value.length > 8) {
+        e.target.value = e.target.value.slice(0, 8);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-person-gear me-2"></i>个人信息编辑
+                </h2>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑表单 -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>基本信息
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <!-- 基本信息 -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-person me-2"></i>基本信息
+                            </h6>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">姓名 *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ student.name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="student_id" class="form-label">学号</label>
+                                <input type="text" class="form-control" id="student_id" 
+                                       value="{{ student.student_id }}" readonly>
+                                <div class="form-text">学号不可修改</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">手机号码</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ student.phone or '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">邮箱</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ student.email or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">性别</label>
+                                <input type="text" class="form-control" 
+                                       value="{{ student.gender }}" readonly>
+                                <div class="form-text">性别不可修改</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="major" class="form-label">专业</label>
+                                <input type="text" class="form-control" 
+                                       value="{{ student.major.name if student.major else '未设置' }}" readonly>
+                                <div class="form-text">专业不可修改</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 生活习惯 -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-heart me-2"></i>生活习惯
+                            </h6>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="sleep_time" class="form-label">作息时间</label>
+                                <select class="form-select" id="sleep_time" name="sleep_time">
+                                    <option value="">请选择</option>
+                                    <option value="早睡" {% if student.sleep_time == '早睡' %}selected{% endif %}>早睡（22:00前）</option>
+                                    <option value="正常" {% if student.sleep_time == '正常' %}selected{% endif %}>正常（22:00-24:00）</option>
+                                    <option value="晚睡" {% if student.sleep_time == '晚睡' %}selected{% endif %}>晚睡（24:00后）</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="wake_time" class="form-label">起床时间</label>
+                                <select class="form-select" id="wake_time" name="wake_time">
+                                    <option value="">请选择</option>
+                                    <option value="早起" {% if student.wake_time == '早起' %}selected{% endif %}>早起（6:00前）</option>
+                                    <option value="正常" {% if student.wake_time == '正常' %}selected{% endif %}>正常（6:00-8:00）</option>
+                                    <option value="晚起" {% if student.wake_time == '晚起' %}selected{% endif %}>晚起（8:00后）</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="quietness" class="form-label">安静程度 (1-5分)</label>
+                                <select class="form-select" id="quietness" name="quietness">
+                                    <option value="">请选择</option>
+                                    {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if student.quietness == i %}selected{% endif %}>
+                                        {{ i }}分 - {% if i == 1 %}非常安静{% elif i == 2 %}比较安静{% elif i == 3 %}一般{% elif i == 4 %}比较活跃{% else %}非常活跃{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cleanliness" class="form-label">整洁程度 (1-5分)</label>
+                                <select class="form-select" id="cleanliness" name="cleanliness">
+                                    <option value="">请选择</option>
+                                    {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if student.cleanliness == i %}selected{% endif %}>
+                                        {{ i }}分 - {% if i == 1 %}非常整洁{% elif i == 2 %}比较整洁{% elif i == 3 %}一般{% elif i == 4 %}比较随意{% else %}非常随意{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="hobbies" class="form-label">兴趣爱好</label>
+                            <textarea class="form-control" id="hobbies" name="hobbies" rows="3" 
+                                      placeholder="请描述您的兴趣爱好，如：阅读、运动、音乐、游戏等...">{{ student.hobbies or '' }}</textarea>
+                            <div class="form-text">详细的兴趣爱好有助于系统为您匹配更合适的室友</div>
+                        </div>
+                        
+                        <!-- 提交按钮 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary me-md-2">取消</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>保存修改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提示信息 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6 class="alert-heading">
+                    <i class="bi bi-info-circle me-2"></i>填写说明
+                </h6>
+                <ul class="mb-0">
+                    <li>完善的生活习惯信息有助于系统为您推荐更合适的室友</li>
+                    <li>您的个人信息将用于室友匹配算法，不会泄露给其他用户</li>
+                    <li>建议如实填写，这样匹配效果会更好</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

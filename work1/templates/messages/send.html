@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-send me-2"></i>发送消息
+                </h2>
+                <a href="{{ url_for('messages') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回消息列表
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发送表单 -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>新消息
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="receiver_id" class="form-label">接收者 *</label>
+                            <select class="form-select" id="receiver_id" name="receiver_id" required>
+                                <option value="">请选择接收者</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">
+                                    {{ student.name }} ({{ student.student_id }})
+                                    {% if student.major %} - {{ student.major.name }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="content" class="form-label">消息内容 *</label>
+                            <textarea class="form-control" id="content" name="content" rows="5" 
+                                      placeholder="请输入您想说的话..." required></textarea>
+                            <div class="form-text">请文明用语，尊重他人</div>
+                        </div>
+                        
+                        <!-- 提交按钮 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('messages') }}" class="btn btn-outline-secondary me-md-2">取消</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i>发送消息
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用说明 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>使用说明
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 50px; height: 50px;">
+                                    <span class="fw-bold">1</span>
+                                </div>
+                                <h6>选择接收者</h6>
+                                <p class="small text-muted">从下拉列表中选择要发送消息的同学</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 50px; height: 50px;">
+                                    <span class="fw-bold">2</span>
+                                </div>
+                                <h6>编写消息</h6>
+                                <p class="small text-muted">在文本框中输入您想说的话</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 50px; height: 50px;">
+                                    <span class="fw-bold">3</span>
+                                </div>
+                                <h6>发送消息</h6>
+                                <p class="small text-muted">点击发送按钮完成消息发送</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 注意事项 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h6 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle me-2"></i>注意事项
+                </h6>
+                <ul class="mb-0">
+                    <li>请文明用语，尊重他人，营造良好的交流环境</li>
+                    <li>消息发送后无法撤回，请谨慎发送</li>
+                    <li>请勿发送垃圾信息或不当内容</li>
+                    <li>如有问题，请联系管理员</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 字符计数
+document.getElementById('content').addEventListener('input', function(e) {
+    const maxLength = 500;
+    const currentLength = e.target.value.length;
+    
+    if (currentLength > maxLength) {
+        e.target.value = e.target.value.slice(0, maxLength);
+    }
+    
+    // 显示字符计数
+    let counter = document.getElementById('charCounter');
+    if (!counter) {
+        counter = document.createElement('div');
+        counter.id = 'charCounter';
+        counter.className = 'form-text text-end';
+        e.target.parentNode.appendChild(counter);
+    }
+    
+    const remaining = maxLength - e.target.value.length;
+    counter.textContent = `还可以输入 ${remaining} 个字符`;
+    
+    if (remaining < 50) {
+        counter.className = 'form-text text-end text-warning';
+    } else {
+        counter.className = 'form-text text-end';
+    }
+});
+</script>
+{% endblock %}

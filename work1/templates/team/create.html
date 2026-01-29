@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="bi bi-people-fill me-2"></i>创建选宿团队
+            </h2>
+            <p class="text-muted">创建团队，邀请室友一起选择心仪的宿舍</p>
+        </div>
+    </div>
+
+    <!-- 团队创建表单 -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>团队信息
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="name" class="form-label">
+                                <i class="bi bi-tag me-1"></i>团队名称 *
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   placeholder="请输入团队名称" required>
+                            <div class="form-text">建议使用有意义的团队名称，如"2024级计算机1班"</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="max_size" class="form-label">
+                                <i class="bi bi-people me-1"></i>团队最大人数
+                            </label>
+                            <select class="form-select" id="max_size" name="max_size">
+                                <option value="2">2人</option>
+                                <option value="3">3人</option>
+                                <option value="4" selected>4人</option>
+                                <option value="5">5人</option>
+                                <option value="6">6人</option>
+                            </select>
+                            <div class="form-text">建议选择4人，这样可以住满一个4人间</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="bi bi-info-circle me-2"></i>团队说明
+                                </h6>
+                                <ul class="mb-0">
+                                    <li>创建团队后，系统将生成一个唯一的邀请码</li>
+                                    <li>您可以将邀请码分享给想要一起选宿的同学</li>
+                                    <li>团队成员可以一起浏览和选择宿舍</li>
+                                    <li>团队负责人可以代表团队提交选宿申请</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-circle me-2"></i>创建团队
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 团队优势说明 -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-star me-2"></i>组团选宿的优势
+            </h5>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people text-primary" style="font-size: 2.5rem;"></i>
+                    <h6 class="card-title mt-3">室友匹配</h6>
+                    <p class="card-text">与志同道合的同学一起选宿，避免随机分配带来的不适应</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-house-check text-success" style="font-size: 2.5rem;"></i>
+                    <h6 class="card-title mt-3">提高成功率</h6>
+                    <p class="card-text">团队选宿比个人选宿更容易选到心仪的宿舍</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-heart text-danger" style="font-size: 2.5rem;"></i>
+                    <h6 class="card-title mt-3">友谊建立</h6>
+                    <p class="card-text">提前了解室友，建立良好的宿舍关系</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 使用流程说明 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-list-ol me-2"></i>使用流程
+            </h5>
+        </div>
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 50px; height: 50px;">
+                                <span class="fw-bold">1</span>
+                            </div>
+                            <h6 class="mt-2">创建团队</h6>
+                            <p class="small text-muted">填写团队信息，获取邀请码</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 50px; height: 50px;">
+                                <span class="fw-bold">2</span>
+                            </div>
+                            <h6 class="mt-2">邀请成员</h6>
+                            <p class="small text-muted">分享邀请码，邀请同学加入</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 50px; height: 50px;">
+                                <span class="fw-bold">3</span>
+                            </div>
+                            <h6 class="mt-2">浏览宿舍</h6>
+                            <p class="small text-muted">团队成员一起浏览可用宿舍</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 50px; height: 50px;">
+                                <span class="fw-bold">4</span>
+                            </div>
+                            <h6 class="mt-2">提交申请</h6>
+                            <p class="small text-muted">团队负责人提交选宿申请</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

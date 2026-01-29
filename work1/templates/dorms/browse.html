@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="bi bi-grid-3x3 me-2"></i>宿舍浏览
+            </h2>
+        </div>
+    </div>
+
+    <!-- 快速筛选按钮 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-lightning me-2"></i>快速筛选
+                    </h6>
+                    <div class="d-flex gap-2 flex-wrap" id="quickFilterGroup">
+                        <button type="button" class="btn btn-outline-primary" data-filter-type="male" onclick="quickFilter('male')">
+                            <i class="bi bi-person me-1"></i>男生宿舍
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" data-filter-type="female" onclick="quickFilter('female')">
+                            <i class="bi bi-person-dress me-1"></i>女生宿舍
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-filter-type="4person" onclick="quickFilter('4person')">
+                            <i class="bi bi-people me-1"></i>4人间
+                        </button>
+                        <button type="button" class="btn btn-outline-info" data-filter-type="6person" onclick="quickFilter('6person')">
+                            <i class="bi bi-people-fill me-1"></i>6人间
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-filter-type="all" onclick="quickFilter('all')">
+                            <i class="bi bi-grid me-1"></i>显示全部
+                        </button>
+                    </div>
+                    <div id="quickFilterFeedback" class="text-muted small mt-2">请选择快速筛选条件</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选表单 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel me-2"></i>筛选条件
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <!-- 基础筛选 -->
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-house me-2"></i>基础信息
+                            </h6>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="building_id" class="form-label">楼栋</label>
+                            <select class="form-select" id="building_id" name="building_id">
+                                <option value="">全部楼栋</option>
+                                {% for building in buildings %}
+                                <option value="{{ building.id }}" {% if request.args.get('building_id')|int == building.id %}selected{% endif %}>
+                                    {{ building.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="gender" class="form-label">性别限制</label>
+                            <select class="form-select" id="gender" name="gender">
+                                <option value="">不限性别</option>
+                                <option value="男" {% if request.args.get('gender') == '男' %}selected{% endif %}>男生宿舍</option>
+                                <option value="女" {% if request.args.get('gender') == '女' %}selected{% endif %}>女生宿舍</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="capacity" class="form-label">容量</label>
+                            <select class="form-select" id="capacity" name="capacity">
+                                <option value="">全部容量</option>
+                                <option value="4" {% if request.args.get('capacity')|int == 4 %}selected{% endif %}>4人间</option>
+                                <option value="6" {% if request.args.get('capacity')|int == 6 %}selected{% endif %}>6人间</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="floor" class="form-label">楼层</label>
+                            <select class="form-select" id="floor" name="floor">
+                                <option value="">全部楼层</option>
+                                {% for i in range(1, 11) %}
+                                <option value="{{ i }}" {% if request.args.get('floor')|int == i %}selected{% endif %}>{{ i }}楼</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        
+                        <!-- 操作按钮 -->
+                        <div class="col-12 mt-4">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search me-1"></i>应用筛选
+                                </button>
+                                <a href="{{ url_for('browse_dorms') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>重置筛选
+                                </a>
+                                <button type="button" class="btn btn-outline-info" onclick="saveSearch()">
+                                    <i class="bi bi-bookmark me-1"></i>保存搜索
+                                </button>
+                                <button type="button" class="btn btn-outline-success" onclick="loadSearch()">
+                                    <i class="bi bi-bookmark-fill me-1"></i>加载搜索
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="h4 text-primary mb-1">{{ dorms|length }}</div>
+                            <small class="text-muted">找到宿舍</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="h4 text-success mb-1">
+                                {% set total_available = 0 %}
+                                {% for dorm in dorms %}
+                                    {% set total_available = total_available + dorm.available_beds|length %}
+                                {% endfor %}
+                                {{ total_available }}
+                            </div>
+                            <small class="text-muted">可用床位</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="h4 text-info mb-1">
+                                {% set total_occupied = 0 %}
+                                {% for dorm in dorms %}
+                                    {% set total_occupied = total_occupied + dorm.occupied_count %}
+                                {% endfor %}
+                                {{ total_occupied }}
+                            </div>
+                            <small class="text-muted">已入住床位</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="h4 text-warning mb-1">
+                                {% if dorms|length > 0 %}
+                                    {{ "%.1f"|format((total_available / (total_available + total_occupied) * 100) if (total_available + total_occupied) > 0 else 0) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">空置率</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 宿舍列表 -->
+    <div class="row">
+        {% for dorm in dorms %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-house me-2"></i>{{ dorm.building.name }} {{ dorm.room_number }}
+                    </h6>
+                </div>
+                
+                <div class="card-body d-flex flex-column">
+                    <!-- 基本信息 -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">楼层</small>
+                            <div class="fw-bold">{{ dorm.floor }}楼</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">容量</small>
+                            <div class="fw-bold">{{ dorm.capacity }}人间</div>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- 操作按钮 -->
+                    <div class="mt-auto">
+                        <div class="d-grid gap-2">
+                            {% if dorm.available_beds %}
+                            <span class="badge bg-success mb-2">
+                                <i class="bi bi-check-circle me-1"></i>{{ dorm.available_beds|length }}个空床
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary mb-2">
+                                <i class="bi bi-x-circle me-1"></i>暂无空床
+                            </span>
+                            {% endif %}
+                            <a href="{{ url_for('dorm_detail', dorm_id=dorm.id) }}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>查看详情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-house-x text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">暂无符合条件的宿舍</h4>
+                <p class="text-muted">请调整筛选条件后重试</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+    {% if pagination.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="分页导航">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for_page('browse_dorms', pagination.prev_num) }}">上一页</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != pagination.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for_page('browse_dorms', page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for_page('browse_dorms', pagination.next_num) }}">下一页</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+
+// 保存搜索条件
+function saveSearch() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    const searchParams = new URLSearchParams();
+    
+    for (let [key, value] of formData.entries()) {
+        if (value) {
+            searchParams.append(key, value);
+        }
+    }
+    
+    localStorage.setItem('dormSearch', searchParams.toString());
+    alert('搜索条件已保存！');
+}
+
+// 加载搜索条件
+function loadSearch() {
+    const savedSearch = localStorage.getItem('dormSearch');
+    if (savedSearch) {
+        const params = new URLSearchParams(savedSearch);
+        const form = document.querySelector('form');
+        
+        // 重置表单
+        form.reset();
+        
+        // 应用保存的条件
+        for (let [key, value] of params.entries()) {
+            const element = form.querySelector(`[name="${key}"]`);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = true;
+                } else {
+                    element.value = value;
+                }
+            }
+        }
+        
+        alert('搜索条件已加载！');
+    } else {
+        alert('没有保存的搜索条件！');
+    }
+}
+
+// 快速筛选按钮
+function quickFilter(type) {
+    const form = document.querySelector('form');
+    form.reset();
+    highlightQuickFilter(type);
+    
+    switch(type) {
+        case 'male':
+            document.getElementById('gender').value = '男';
+            break;
+        case 'female':
+            document.getElementById('gender').value = '女';
+            break;
+        case '4person':
+            document.getElementById('capacity').value = '4';
+            break;
+        case '6person':
+            document.getElementById('capacity').value = '6';
+            break;
+        case 'all':
+            // 重置所有筛选条件
+            form.reset();
+            break;
+    }
+    
+    updateQuickFilterFeedback(type);
+    
+    // 自动提交表单
+    setTimeout(() => {
+        form.submit();
+    }, 100);
+}
+
+function highlightQuickFilter(activeType) {
+    document.querySelectorAll('#quickFilterGroup button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filterType === activeType);
+    });
+}
+
+function updateQuickFilterFeedback(type) {
+    const feedback = document.getElementById('quickFilterFeedback');
+    const mapping = {
+        male: '已切换到男生宿舍，仅显示男生楼栋。',
+        female: '已切换到女生宿舍，仅显示女生楼栋。',
+        '4person': '已筛选仅显示4人间宿舍。',
+        '6person': '已筛选仅显示6人间宿舍。',
+        all: '已展示全部宿舍。'
+    };
+    feedback.textContent = mapping[type] || '筛选条件已更新。';
+}
+
+// 宿舍浏览功能（仅查看，不可选择）
+function viewDorm(dormId) {
+    window.location.href = `/dorm/${dormId}`;
+}
+
+// 床位状态颜色映射
+function getBedStatusColor(status) {
+    switch(status) {
+        case 'available': return 'success';
+        case 'occupied': return 'danger';
+        case 'reserved': return 'warning';
+        default: return 'secondary';
+    }
+}
+
+// 床位状态文本映射
+function getBedStatusText(status) {
+    switch(status) {
+        case 'available': return '可用';
+        case 'occupied': return '已占用';
+        case 'reserved': return '已预留';
+        case 'maintenance': return '维护中';
+        default: return '未知';
+    }
+}
+
+// 自动提交表单（当选择改变时）
+document.addEventListener('DOMContentLoaded', function() {
+    const autoSubmitElements = document.querySelectorAll('select, input[type="checkbox"]');
+    autoSubmitElements.forEach(element => {
+        element.addEventListener('change', function() {
+            // 延迟提交，避免频繁请求
+            clearTimeout(this.submitTimeout);
+            this.submitTimeout = setTimeout(() => {
+                document.querySelector('form').submit();
+            }, 500);
+        });
+    });
+    
+    // 添加滚动到顶部按钮
+    const scrollToTopBtn = document.createElement('button');
+    scrollToTopBtn.innerHTML = '<i class="bi bi-arrow-up"></i>';
+    scrollToTopBtn.className = 'btn btn-primary position-fixed';
+    scrollToTopBtn.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; border-radius: 50%; width: 50px; height: 50px; display: none;';
+    scrollToTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.appendChild(scrollToTopBtn);
+    
+    // 显示/隐藏滚动按钮
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            scrollToTopBtn.style.display = 'block';
+        } else {
+            scrollToTopBtn.style.display = 'none';
+        }
+    });
+
+    const presetGender = '{{ request.args.get("gender", "") }}';
+    const presetCapacity = '{{ request.args.get("capacity", "") }}';
+    if (presetGender === '男') {
+        highlightQuickFilter('male');
+        updateQuickFilterFeedback('male');
+    } else if (presetGender === '女') {
+        highlightQuickFilter('female');
+        updateQuickFilterFeedback('female');
+    } else if (presetCapacity === '4') {
+        highlightQuickFilter('4person');
+        updateQuickFilterFeedback('4person');
+    } else if (presetCapacity === '6') {
+        highlightQuickFilter('6person');
+        updateQuickFilterFeedback('6person');
+    } else {
+        highlightQuickFilter('all');
+        updateQuickFilterFeedback('all');
+    }
+});
+</script>
+{% endblock %}

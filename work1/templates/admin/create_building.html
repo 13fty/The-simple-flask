@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>创建楼栋
+                </h2>
+                <a href="{{ url_for('admin_buildings') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回楼栋列表
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建表单 -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building me-2"></i>楼栋信息
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="name" class="form-label">楼栋名称 *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   placeholder="如：1号宿舍楼" required>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">性别限制 *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">请选择</option>
+                                    <option value="男">男生宿舍</option>
+                                    <option value="女">女生宿舍</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="total_floors" class="form-label">楼层数 *</label>
+                                <input type="number" class="form-control" id="total_floors" name="total_floors" 
+                                       min="1" max="50" value="10" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="location" class="form-label">位置描述</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="如：校园东区、校园西区">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="facilities" class="form-label">设施说明</label>
+                            <textarea class="form-control" id="facilities" name="facilities" rows="3" 
+                                      placeholder="如：24小时热水、WiFi覆盖、门禁系统、电梯等..."></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="description" class="form-label">楼栋描述</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                      placeholder="如：现代化学生宿舍，设施齐全，环境优美..."></textarea>
+                        </div>
+                        
+                        <!-- 提交按钮 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('admin_buildings') }}" class="btn btn-outline-secondary me-md-2">取消</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>创建楼栋
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 返回按钮 -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <a href="{{ url_for('browse_dorms') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>返回宿舍列表
+            </a>
+        </div>
+    </div>
+
+    <!-- 宿舍基本信息 -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-house me-2"></i>{{ dorm.building.name }} {{ dorm.room_number }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>基本信息</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-building me-2"></i><strong>楼栋：</strong>{{ dorm.building.name }}</li>
+                                <li><i class="bi bi-door-open me-2"></i><strong>房间号：</strong>{{ dorm.room_number }}</li>
+                                <li><i class="bi bi-layers me-2"></i><strong>楼层：</strong>{{ dorm.floor }}楼</li>
+                                <li><i class="bi bi-people me-2"></i><strong>容量：</strong>{{ dorm.capacity }}人间</li>
+                                <li><i class="bi bi-tag me-2"></i><strong>类型：</strong>{{ dorm.room_type or '标准间' }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>入住情况
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>已入住</span>
+                            <span>{{ beds_status.occupied }}/{{ dorm.capacity }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set occupancy_rate = (beds_status.occupied / dorm.capacity * 100) if dorm.capacity > 0 else 0 %}
+                            <div class="progress-bar bg-success" style="width: {{ occupancy_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>可用床位</span>
+                            <span class="text-success">{{ beds_status.available }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>预留床位</span>
+                            <span class="text-warning">{{ beds_status.reserved }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 评价信息 -->
+    {% if reviews %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star me-2"></i>用户评价
+                        {% if avg_rating > 0 %}
+                        <span class="badge bg-primary ms-2">{{ "%.1f"|format(avg_rating) }}分</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for review in reviews %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ review.student.name }}</h6>
+                                <div class="mb-2">
+                                    {% for i in range(1, 6) %}
+                                    <i class="bi bi-star{% if i <= review.rating %}-fill{% endif %} text-warning"></i>
+                                    {% endfor %}
+                                    <span class="ms-2 text-muted">{{ review.created_at.strftime('%Y-%m-%d') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% if review.comment %}
+                        <p class="mb-0">{{ review.comment }}</p>
+                        {% endif %}
+                        
+                        {% if review.environment_rating or review.facilities_rating or review.location_rating %}
+                        <div class="mt-2">
+                            {% if review.environment_rating %}
+                            <small class="text-muted">环境：{{ review.environment_rating }}分</small>
+                            {% endif %}
+                            {% if review.facilities_rating %}
+                            <small class="text-muted ms-2">设施：{{ review.facilities_rating }}分</small>
+                            {% endif %}
+                            {% if review.location_rating %}
+                            <small class="text-muted ms-2">位置：{{ review.location_rating }}分</small>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 楼栋信息 -->
+    {% if dorm.building.description %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>楼栋信息
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ dorm.building.description }}</p>
+                    {% if dorm.building.facilities %}
+                    <h6>楼栋设施：</h6>
+                    <p>{{ dorm.building.facilities }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 操作按钮 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>操作
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('review_dorm', dorm_id=dorm.id) }}" class="btn btn-warning">
+                                    <i class="bi bi-star me-1"></i>评价宿舍
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('browse_dorms') }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-arrow-left me-1"></i>返回列表
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('my_reviews') }}" class="btn btn-outline-info">
+                                    <i class="bi bi-list me-1"></i>我的评价
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-success" onclick="shareDorm()">
+                                    <i class="bi bi-share me-1"></i>分享宿舍
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

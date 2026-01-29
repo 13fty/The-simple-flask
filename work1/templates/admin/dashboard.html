@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white rounded-3 p-4">
+                <h2 class="mb-2">
+                    <i class="bi bi-gear-fill me-2"></i>管理员控制台
+                </h2>
+                <p class="mb-0">系统管理与数据统计</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-people-fill text-primary" style="font-size: 2.5rem;"></i>
+                    <h4 class="mt-2">{{ stats.total_students }}</h4>
+                    <p class="text-muted mb-0">注册学生</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-house-fill text-success" style="font-size: 2.5rem;"></i>
+                    <h4 class="mt-2">{{ stats.total_dorms }}</h4>
+                    <p class="text-muted mb-0">宿舍房间</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-bed-fill text-info" style="font-size: 2.5rem;"></i>
+                    <h4 class="mt-2">{{ stats.occupied_beds }}</h4>
+                    <p class="text-muted mb-0">已入住床位</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-clipboard-check-fill text-warning" style="font-size: 2.5rem;"></i>
+                    <h4 class="mt-2">{{ stats.pending_applications }}</h4>
+                    <p class="text-muted mb-0">待处理申请</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速操作 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-lightning me-2"></i>快速操作
+            </h5>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-clipboard-data text-primary" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">申请管理</h6>
+                    <a href="#applications" class="btn btn-outline-primary btn-sm">查看申请</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people text-success" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">学生管理</h6>
+                    <a href="{{ url_for('admin_students') }}" class="btn btn-outline-success btn-sm">学生列表</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-building text-info" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">楼栋管理</h6>
+                    <a href="{{ url_for('admin_buildings') }}" class="btn btn-outline-info btn-sm">楼栋设置</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-house text-warning" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">宿舍管理</h6>
+                    <a href="#" class="btn btn-outline-warning btn-sm">宿舍设置</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-bell text-danger" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">公告管理</h6>
+                    <a href="#" class="btn btn-outline-danger btn-sm">发布公告</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-graph-up text-secondary" style="font-size: 2rem;"></i>
+                    <h6 class="card-title mt-2">数据统计</h6>
+                    <a href="#" class="btn btn-outline-secondary btn-sm">查看统计</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 打卡统计 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart me-2"></i>每日打卡统计
+                    </h5>
+                    <div>
+                        <input type="date" id="attendanceDatePicker" class="form-control form-control-sm" 
+                               value="{{ attendance_stats.date }}" style="max-width: 200px; display: inline-block;">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="attendanceChart" style="max-height: 300px;"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mt-4">
+                                <h6>统计信息</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>总学生数：</strong></td>
+                                        <td id="totalStudents">{{ attendance_stats.total_students }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>已打卡：</strong></td>
+                                        <td id="checkedIn" class="text-success">{{ attendance_stats.checked_in }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>未打卡：</strong></td>
+                                        <td id="notChecked" class="text-danger">{{ attendance_stats.not_checked }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>打卡率：</strong></td>
+                                        <td id="checkInRate">
+                                            {% if attendance_stats.total_students > 0 %}
+                                            {{ "%.1f"|format((attendance_stats.checked_in / attendance_stats.total_students * 100)) }}%
+                                            {% else %}
+                                            0%
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最新申请 -->
+    <div class="row" id="applications">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clipboard-data me-2"></i>最新申请
+                    </h5>
+                    <span class="badge bg-primary">{{ recent_applications|length }} 条记录</span>
+                </div>
+                <div class="card-body">
+                    {% if recent_applications %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>申请时间</th>
+                                    <th>学生信息</th>
+                                    <th>申请类型</th>
+                                    <th>目标宿舍</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in recent_applications %}
+                                <tr>
+                                    <td>{{ app.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ app.student.name }}</strong><br>
+                                            <small class="text-muted">{{ app.student.student_id }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if app.application_type == 'new' %}
+                                        <span class="badge bg-primary">新申请</span>
+                                        {% elif app.application_type == 'change' %}
+                                        <span class="badge bg-warning">换宿</span>
+                                        {% elif app.application_type == 'cancel' %}
+                                        <span class="badge bg-danger">退宿</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if app.bed %}
+                                        {{ app.bed.dorm.building.name }} {{ app.bed.dorm.room_number }} {{ app.bed.bed_number }}号床
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if app.status == 'pending' %}
+                                        <span class="badge bg-warning">待审核</span>
+                                        {% elif app.status == 'approved' %}
+                                        <span class="badge bg-success">已批准</span>
+                                        {% elif app.status == 'rejected' %}
+                                        <span class="badge bg-danger">已拒绝</span>
+                                        {% elif app.status == 'cancelled' %}
+                                        <span class="badge bg-secondary">已取消</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if app.status == 'pending' %}
+                                        <div class="btn-group btn-group-sm">
+                                            <form method="POST" action="{{ url_for('process_application', app_id=app.id) }}" class="d-inline">
+                                                <input type="hidden" name="action" value="approve">
+                                                <button type="submit" class="btn btn-success btn-sm" 
+                                                        onclick="return confirm('确定批准此申请吗？')">
+                                                    <i class="bi bi-check"></i>
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('process_application', app_id=app.id) }}" class="d-inline">
+                                                <input type="hidden" name="action" value="reject">
+                                                <button type="submit" class="btn btn-danger btn-sm" 
+                                                        onclick="return confirm('确定拒绝此申请吗？')">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% else %}
+                                        <small class="text-muted">
+                                            {% if app.processed_at %}
+                                            处理于 {{ app.processed_at.strftime('%Y-%m-%d %H:%M') }}
+                                            {% endif %}
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-clipboard text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-muted">暂无申请记录</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // 初始化饼状图
+    let attendanceChart = null;
+    
+    function initChart(checkedIn, notChecked) {
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        
+        if (attendanceChart) {
+            attendanceChart.destroy();
+        }
+        
+        attendanceChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['已打卡', '未打卡'],
+                datasets: [{
+                    data: [checkedIn, notChecked],
+                    backgroundColor: [
+                        '#28a745',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value}人 (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // 加载统计数据
+    function loadAttendanceStats(selectedDate) {
+        fetch(`/attendance/statistics?date=${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 更新统计信息
+                    document.getElementById('totalStudents').textContent = data.total_students;
+                    document.getElementById('checkedIn').textContent = data.checked_in;
+                    document.getElementById('notChecked').textContent = data.not_checked;
+                    
+                    // 计算打卡率
+                    const rate = data.total_students > 0 
+                        ? ((data.checked_in / data.total_students) * 100).toFixed(1) 
+                        : 0;
+                    document.getElementById('checkInRate').textContent = rate + '%';
+                    
+                    // 更新图表
+                    initChart(data.checked_in, data.not_checked);
+                } else {
+                    alert('加载统计数据失败：' + (data.message || '未知错误'));
+                }
+            })
+            .catch(error => {
+                console.error('加载统计数据失败:', error);
+                alert('加载统计数据失败，请重试');
+            });
+    }
+    
+    // 初始化页面时加载图表
+    document.addEventListener('DOMContentLoaded', function() {
+        const initialDate = document.getElementById('attendanceDatePicker').value;
+        const initialCheckedIn = {{ attendance_stats.checked_in }};
+        const initialNotChecked = {{ attendance_stats.not_checked }};
+        initChart(initialCheckedIn, initialNotChecked);
+        
+        // 日期选择器变化事件
+        document.getElementById('attendanceDatePicker').addEventListener('change', function() {
+            const selectedDate = this.value;
+            loadAttendanceStats(selectedDate);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-arrow-repeat me-2"></i>换宿申请
+                </h2>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 当前住宿信息 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-house me-2"></i>当前住宿信息
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.student.current_bed %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>楼栋：</strong>{{ current_user.student.current_bed.dorm.building.name }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>房间：</strong>{{ current_user.student.current_bed.dorm.room_number }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>床位：</strong>{{ current_user.student.current_bed.bed_number }}号床
+                        </div>
+                        <div class="col-md-3">
+                            <strong>楼层：</strong>{{ current_user.student.current_bed.dorm.floor }}楼
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center">
+                        <i class="bi bi-house-x text-muted" style="font-size: 2rem;"></i>
+                        <p class="mt-2 text-muted">您当前没有住宿信息</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 换宿申请表单 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list me-2"></i>选择目标宿舍
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if dorms %}
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="target_dorm_id" class="form-label">目标宿舍 *</label>
+                            <select class="form-select" id="target_dorm_id" name="target_dorm_id" required>
+                                <option value="">请选择目标宿舍</option>
+                                {% for dorm in dorms %}
+                                <option value="{{ dorm.id }}" 
+                                        data-capacity="{{ dorm.capacity }}"
+                                        data-available="{{ dorm.available_beds|length }}"
+                                        data-floor="{{ dorm.floor }}">
+                                    {{ dorm.building.name }} {{ dorm.room_number }} 
+                                    ({{ dorm.floor }}楼, {{ dorm.capacity }}人间, {{ dorm.available_beds|length }}个空床)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="reason" class="form-label">换宿原因</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" 
+                                      placeholder="请详细说明换宿原因，如：室友生活习惯不合、宿舍环境问题等..."></textarea>
+                            <div class="form-text">请如实填写换宿原因，这将影响审核结果</div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-exclamation-triangle me-2"></i>注意事项
+                            </h6>
+                            <ul class="mb-0">
+                                <li>换宿申请需要管理员审核，请耐心等待</li>
+                                <li>换宿成功后，原床位将被释放</li>
+                                <li>请确保目标宿舍确实符合您的需求</li>
+                                <li>频繁换宿可能影响您的住宿记录</li>
+                                <li>请确保目标宿舍有足够的空床</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 床位信息提示 -->
+                        <div id="bed-info" class="alert alert-info" style="display: none;">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-info-circle me-2"></i>床位信息
+                            </h6>
+                            <p id="bed-info-text"></p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary me-md-2">取消</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i>提交申请
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-house-x text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">暂无可用宿舍</h4>
+                        <p class="text-muted">当前没有符合您条件的可用宿舍</p>
+                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-1"></i>返回首页
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 床位数量检查
+document.getElementById('target_dorm_id').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const bedInfo = document.getElementById('bed-info');
+    const bedInfoText = document.getElementById('bed-info-text');
+    
+    if (selectedOption.value) {
+        const capacity = selectedOption.dataset.capacity;
+        const available = selectedOption.dataset.available;
+        const floor = selectedOption.dataset.floor;
+        
+        let message = `目标宿舍：${capacity}人间，${floor}楼，当前有${available}个空床。`;
+        
+        if (available < 1) {
+            message += ' <strong class="text-danger">该宿舍已满，无法申请换宿。</strong>';
+            bedInfo.className = 'alert alert-danger';
+        } else if (available < 2) {
+            message += ' <strong class="text-warning">该宿舍空床较少，请谨慎选择。</strong>';
+            bedInfo.className = 'alert alert-warning';
+        } else {
+            message += ' <strong class="text-success">该宿舍空床充足，可以申请换宿。</strong>';
+            bedInfo.className = 'alert alert-success';
+        }
+        
+        bedInfoText.innerHTML = message;
+        bedInfo.style.display = 'block';
+    } else {
+        bedInfo.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

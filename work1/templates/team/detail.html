@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-people-fill me-2"></i>{{ team.name }}
+                </h2>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 团队信息 -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>团队信息
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>基本信息</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>团队名称：</strong>{{ team.name }}</li>
+                                <li><strong>队长：</strong>{{ team.leader.name }}</li>
+                                <li><strong>创建时间：</strong>{{ team.created_at.strftime('%Y-%m-%d %H:%M') }}</li>
+                                <li><strong>团队规模：</strong>{{ team.members|length }}/{{ team.max_size }} 人</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>邀请信息</h6>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" value="{{ team.invite_code }}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyInviteCode()">
+                                    <i class="bi bi-clipboard"></i> 复制
+                                </button>
+                            </div>
+                            <small class="text-muted">分享此邀请码给想要加入团队的同学</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>团队状态
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>成员数量</span>
+                            <span>{{ team.members|length }}/{{ team.max_size }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set member_rate = (team.members|length / team.max_size * 100) if team.max_size > 0 else 0 %}
+                            <div class="progress-bar bg-success" style="width: {{ member_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>已入住成员</span>
+                            <span class="text-success">
+                                {{ team.members|selectattr('current_bed_id')|list|length }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>未入住成员</span>
+                            <span class="text-warning">
+                                {{ team.members|rejectattr('current_bed_id')|list|length }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 团队成员 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people me-2"></i>团队成员
+                    </h5>
+                    <span class="badge bg-primary">{{ team.members|length }} 人</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for member in team.members %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card {% if member.id == team.leader_id %}border-primary{% endif %}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0">
+                                            {{ member.name }}
+                                            {% if member.id == team.leader_id %}
+                                            <span class="badge bg-primary ms-1">队长</span>
+                                            {% endif %}
+                                        </h6>
+                                        {% if member.current_bed_id %}
+                                        <span class="badge bg-success">已入住</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">未入住</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-card-text me-1"></i>{{ member.student_id }}<br>
+                                            <i class="bi bi-book me-1"></i>{{ member.major.name if member.major else '未设置专业' }}<br>
+                                            <i class="bi bi-gender-ambiguous me-1"></i>{{ member.gender }}
+                                        </small>
+                                    </div>
+                                    
+                                    {% if member.current_bed %}
+                                    <div class="mb-2">
+                                        <small class="text-success">
+                                            <i class="bi bi-house me-1"></i>
+                                            {{ member.current_bed.dorm.building.name }} {{ member.current_bed.dorm.room_number }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if member.phone %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-telephone me-1"></i>{{ member.phone }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- 操作按钮 -->
+                                    {% if current_user.student.id == team.leader_id and member.id != team.leader_id %}
+                                    <div class="mt-2">
+                                        <form method="POST" action="{{ url_for('remove_team_member', team_id=team.id, member_id=member.id) }}" 
+                                              class="d-inline" onsubmit="return confirm('确定要移除此成员吗？')">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-person-dash me-1"></i>移除
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 团队操作 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>团队操作
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('change_dorm') }}" class="btn btn-primary">
+                                    <i class="bi bi-arrow-repeat me-1"></i>申请换宿
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('roommate_match') }}" class="btn btn-success">
+                                    <i class="bi bi-people me-1"></i>室友匹配
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {% if current_user.student.id == team.leader_id %}
+                            <div class="d-grid">
+                                <form method="POST" action="{{ url_for('delete_team', team_id=team.id) }}" 
+                                      onsubmit="return confirm('确定要解散团队吗？此操作不可恢复！')">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash me-1"></i>解散团队
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <div class="d-grid">
+                                <form method="POST" action="{{ url_for('leave_team', team_id=team.id) }}" 
+                                      onsubmit="return confirm('确定要退出团队吗？')">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="bi bi-box-arrow-right me-1"></i>退出团队
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyInviteCode() {
+    const inviteCode = document.querySelector('input[value="{{ team.invite_code }}"]');
+    inviteCode.select();
+    inviteCode.setSelectionRange(0, 99999); // For mobile devices
+    
+    try {
+        document.execCommand('copy');
+        alert('邀请码已复制到剪贴板！');
+    } catch (err) {
+        // Fallback for modern browsers
+        navigator.clipboard.writeText('{{ team.invite_code }}').then(function() {
+            alert('邀请码已复制到剪贴板！');
+        });
+    }
+}
+</script>
+{% endblock %}

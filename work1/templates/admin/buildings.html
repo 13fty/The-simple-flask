@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-building me-2"></i>楼栋管理
+                </h2>
+                <div>
+                    <a href="{{ url_for('create_building') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>新建楼栋
+                    </a>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>返回控制台
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 楼栋列表 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list me-2"></i>楼栋列表
+                    </h5>
+                    <span class="badge bg-primary">{{ buildings|length }} 栋</span>
+                </div>
+                <div class="card-body">
+                    {% if buildings %}
+                    <div class="row">
+                        {% for building in buildings %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-{% if building.gender == '男' %}primary{% else %}pink{% endif %} text-white">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-building me-2"></i>{{ building.name }}
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">性别限制</small>
+                                                <div class="fw-bold">
+                                                    {% if building.gender == '男' %}
+                                                    <i class="bi bi-person text-primary"></i> 男生宿舍
+                                                    {% else %}
+                                                    <i class="bi bi-person-dress text-pink"></i> 女生宿舍
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">楼层数</small>
+                                                <div class="fw-bold">{{ building.total_floors }}层</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if building.location %}
+                                    <div class="mb-3">
+                                        <small class="text-muted">位置</small>
+                                        <div class="fw-bold">{{ building.location }}</div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if building.facilities %}
+                                    <div class="mb-3">
+                                        <small class="text-muted">设施</small>
+                                        <div class="small">{{ building.facilities[:50] }}{% if building.facilities|length > 50 %}...{% endif %}</div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted">宿舍数量</small>
+                                        <div class="fw-bold">{{ building.dormitories|length }} 间</div>
+                                    </div>
+                                    
+                                    {% if building.description %}
+                                    <div class="mb-3">
+                                        <small class="text-muted">描述</small>
+                                        <div class="small">{{ building.description[:100] }}{% if building.description|length > 100 %}...{% endif %}</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer">
+                                    <div class="btn-group w-100">
+                                        <a href="{{ url_for('edit_building', building_id=building.id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-pencil me-1"></i>编辑
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                onclick="deleteBuilding({{ building.id }}, '{{ building.name }}')">
+                                            <i class="bi bi-trash me-1"></i>删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">暂无楼栋数据</h4>
+                        <p class="text-muted">请先创建楼栋信息</p>
+                        <a href="{{ url_for('create_building') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i>创建楼栋
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要删除楼栋 <strong id="deleteBuildingName"></strong> 吗？</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    此操作不可恢复，请谨慎操作！
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteBuilding(buildingId, buildingName) {
+    document.getElementById('deleteBuildingName').textContent = buildingName;
+    document.getElementById('deleteForm').action = `/admin/buildings/${buildingId}/delete`;
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

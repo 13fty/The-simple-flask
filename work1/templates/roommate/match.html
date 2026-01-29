@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="bi bi-people me-2"></i>室友匹配
+            </h2>
+            <p class="text-muted">基于生活习惯智能匹配志同道合的室友</p>
+        </div>
+    </div>
+
+    <!-- 匹配说明 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6 class="alert-heading">
+                    <i class="bi bi-info-circle me-2"></i>匹配说明
+                </h6>
+                <p class="mb-0">
+                    系统将根据您的作息时间、生活习惯、性格偏好等因素，为您推荐最合适的室友。
+                    匹配度越高，说明生活习惯越相似，成为室友的可能性越大。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 匹配结果 -->
+    {% if matches %}
+    <div class="row">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="bi bi-heart me-2"></i>推荐室友 ({{ matches|length }} 人)
+            </h5>
+        </div>
+        {% for match in matches %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <!-- 匹配度 -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="card-title mb-0">{{ match.student.name }}</h6>
+                        <div class="text-end">
+                            <span class="badge bg-{% if match.score >= 80 %}success{% elif match.score >= 60 %}warning{% else %}secondary{% endif %}">
+                                {{ match.score }}% 匹配
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 基本信息 -->
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="bi bi-card-text me-1"></i>{{ match.student.student_id }}<br>
+                            <i class="bi bi-book me-1"></i>{{ match.student.major.name if match.student.major else '未设置专业' }}<br>
+                            <i class="bi bi-gender-ambiguous me-1"></i>{{ match.student.gender }}
+                        </small>
+                    </div>
+                    
+                    <!-- 生活习惯 -->
+                    <div class="mb-3">
+                        <h6 class="small text-muted mb-2">生活习惯</h6>
+                        <div class="row">
+                            {% if match.student.sleep_time %}
+                            <div class="col-6 mb-1">
+                                <small>
+                                    <i class="bi bi-moon me-1"></i>作息：{{ match.student.sleep_time }}
+                                </small>
+                            </div>
+                            {% endif %}
+                            {% if match.student.wake_time %}
+                            <div class="col-6 mb-1">
+                                <small>
+                                    <i class="bi bi-sun me-1"></i>起床：{{ match.student.wake_time }}
+                                </small>
+                            </div>
+                            {% endif %}
+                            {% if match.student.quietness %}
+                            <div class="col-6 mb-1">
+                                <small>
+                                    <i class="bi bi-volume-down me-1"></i>安静度：{{ match.student.quietness }}/5
+                                </small>
+                            </div>
+                            {% endif %}
+                            {% if match.student.cleanliness %}
+                            <div class="col-6 mb-1">
+                                <small>
+                                    <i class="bi bi-broom me-1"></i>整洁度：{{ match.student.cleanliness }}/5
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 兴趣爱好 -->
+                    {% if match.student.hobbies %}
+                    <div class="mb-3">
+                        <h6 class="small text-muted mb-2">兴趣爱好</h6>
+                        <p class="small mb-0">{{ match.student.hobbies[:50] }}{% if match.student.hobbies|length > 50 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 联系方式 -->
+                    {% if match.student.phone or match.student.email %}
+                    <div class="mb-3">
+                        <h6 class="small text-muted mb-2">联系方式</h6>
+                        {% if match.student.phone %}
+                        <small class="d-block">
+                            <i class="bi bi-telephone me-1"></i>{{ match.student.phone }}
+                        </small>
+                        {% endif %}
+                        {% if match.student.email %}
+                        <small class="d-block">
+                            <i class="bi bi-envelope me-1"></i>{{ match.student.email }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 匹配度进度条 -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">匹配度</small>
+                            <small class="text-muted">{{ match.score }}%</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-{% if match.score >= 80 %}success{% elif match.score >= 60 %}warning{% else %}secondary{% endif %}" 
+                                 style="width: {{ match.score }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-sm" onclick="contactStudent('{{ match.student.id }}')">
+                            <i class="bi bi-chat-dots me-1"></i>联系TA
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="inviteToTeam('{{ match.student.id }}')">
+                            <i class="bi bi-people me-1"></i>邀请组团
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">暂无匹配的室友</h4>
+                <p class="text-muted">请完善您的个人信息，系统将为您推荐更合适的室友</p>
+                <a href="#" class="btn btn-primary">
+                    <i class="bi bi-person-gear me-1"></i>完善个人信息
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- 联系模态框 -->
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">联系室友</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">留言内容</label>
+                        <textarea class="form-control" id="message" rows="4" 
+                                  placeholder="请输入您想说的话..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">发送消息</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 组团邀请模态框 -->
+<div class="modal fade" id="teamModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">邀请组团</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要邀请此同学加入您的选宿团队吗？</p>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    组团后可以一起选择宿舍，提高选到心仪宿舍的概率。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" onclick="sendTeamInvite()">发送邀请</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentStudentId = null;
+
+function contactStudent(studentId) {
+    currentStudentId = studentId;
+    const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+    modal.show();
+}
+
+function inviteToTeam(studentId) {
+    currentStudentId = studentId;
+    const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+    modal.show();
+}
+
+function sendMessage() {
+    const message = document.getElementById('message').value;
+    if (!message.trim()) {
+        alert('请输入留言内容');
+        return;
+    }
+    
+    // 发送AJAX请求到后端
+    fetch('/messages/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `receiver_id=${currentStudentId}&content=${encodeURIComponent(message)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('消息发送成功！');
+            bootstrap.Modal.getInstance(document.getElementById('contactModal')).hide();
+            document.getElementById('message').value = '';
+        } else {
+            alert('消息发送失败，请重试');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('消息发送失败，请重试');
+    });
+}
+
+function sendTeamInvite() {
+    // 这里应该发送AJAX请求到后端
+    alert('组团邀请发送成功！');
+    bootstrap.Modal.getInstance(document.getElementById('teamModal')).hide();
+}
+</script>
+{% endblock %}

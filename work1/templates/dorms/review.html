@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-star me-2"></i>评价宿舍
+                </h2>
+                <a href="{{ url_for('dorm_detail', dorm_id=dorm.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回宿舍详情
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 宿舍信息 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-house me-2"></i>{{ dorm.building.name }} {{ dorm.room_number }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>楼层：</strong>{{ dorm.floor }}楼</p>
+                            <p><strong>容量：</strong>{{ dorm.capacity }}人间</p>
+                            <p><strong>类型：</strong>{{ dorm.room_type or '标准间' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if dorm.orientation %}
+                            <p><strong>朝向：</strong>{{ dorm.orientation }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 评价表单 -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        {% if existing_review %}更新评价{% else %}提交评价{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <!-- 总体评分 -->
+                        <div class="mb-4">
+                            <label class="form-label">总体评分 *</label>
+                            <div class="rating-input">
+                                {% for i in range(1, 6) %}
+                                <input type="radio" id="rating{{ i }}" name="rating" value="{{ i }}" 
+                                       {% if existing_review and existing_review.rating == i %}checked{% endif %} required>
+                                <label for="rating{{ i }}" class="star">★</label>
+                                {% endfor %}
+                            </div>
+                            <div class="form-text">请选择1-5星评分</div>
+                        </div>
+                        
+                        <!-- 详细评分 -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">详细评分</h6>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">环境评分</label>
+                                <select class="form-select" name="environment_rating">
+                                    <option value="">请选择</option>
+                                    {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if existing_review and existing_review.environment_rating == i %}selected{% endif %}>
+                                        {{ i }}分 - {% if i == 1 %}很差{% elif i == 2 %}较差{% elif i == 3 %}一般{% elif i == 4 %}较好{% else %}很好{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">设施评分</label>
+                                <select class="form-select" name="facilities_rating">
+                                    <option value="">请选择</option>
+                                    {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if existing_review and existing_review.facilities_rating == i %}selected{% endif %}>
+                                        {{ i }}分 - {% if i == 1 %}很差{% elif i == 2 %}较差{% elif i == 3 %}一般{% elif i == 4 %}较好{% else %}很好{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">位置评分</label>
+                                <select class="form-select" name="location_rating">
+                                    <option value="">请选择</option>
+                                    {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if existing_review and existing_review.location_rating == i %}selected{% endif %}>
+                                        {{ i }}分 - {% if i == 1 %}很差{% elif i == 2 %}较差{% elif i == 3 %}一般{% elif i == 4 %}较好{% else %}很好{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 评价内容 -->
+                        <div class="mb-4">
+                            <label for="comment" class="form-label">评价内容</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="4" 
+                                      placeholder="请详细描述您的住宿体验，包括优点和不足...">{{ existing_review.comment if existing_review else '' }}</textarea>
+                            <div class="form-text">您的评价将帮助其他同学更好地选择宿舍</div>
+                        </div>
+                        
+                        <!-- 提交按钮 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dorm_detail', dorm_id=dorm.id) }}" class="btn btn-outline-secondary me-md-2">取消</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                {% if existing_review %}更新评价{% else %}提交评价{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 评价说明 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6 class="alert-heading">
+                    <i class="bi bi-info-circle me-2"></i>评价说明
+                </h6>
+                <ul class="mb-0">
+                    <li>请根据您的实际住宿体验进行客观评价</li>
+                    <li>评价内容应真实、客观，避免恶意评价</li>
+                    <li>您的评价将帮助其他同学更好地了解宿舍情况</li>
+                    <li>可以随时更新您的评价内容</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.rating-input input[type="radio"] {
+    display: none;
+}
+
+.rating-input label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input[type="radio"]:checked ~ label {
+    color: #ffc107;
+}
+
+.rating-input input[type="radio"]:checked + label {
+    color: #ffc107;
+}
+</style>
+
+<script>
+// 星级评分交互
+document.querySelectorAll('.rating-input input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const rating = this.value;
+        console.log('Selected rating:', rating);
+    });
+});
+</script>
+{% endblock %}
